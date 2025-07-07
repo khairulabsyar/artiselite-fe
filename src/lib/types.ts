@@ -17,3 +17,17 @@ export interface ActivityLog {
   object_repr: string;
   changes_dict: object;
 }
+
+export interface DashboardSummary {
+  total_inventory_value: number;
+  total_inventory_items: number;
+  low_stock_alerts: number;
+  total_inbound: number;
+  total_outbound: number;
+}
+
+export interface TransactionVolume {
+  date: string;
+  inbound: number;
+  outbound: number;
+}

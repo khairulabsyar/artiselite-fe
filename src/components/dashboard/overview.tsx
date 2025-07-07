@@ -16,7 +16,7 @@ interface OverviewProps {
 export function Overview({ data }: OverviewProps) {
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
+      <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
         <XAxis
           dataKey="date"
           stroke="#888888"

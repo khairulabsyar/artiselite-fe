@@ -2,112 +2,90 @@
 
 import { Overview } from '@/components/dashboard/overview';
 import { RecentSales } from '@/components/dashboard/recent-sales';
-import { Button } from '@/components/ui/button';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { ActivityLog, ApiUser } from '@/lib/types';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useDashboardActivity, useDashboardSummary, useDashboardTransactionVolume } from '@/hooks/use-dashboard';
 import { Activity, CreditCard, Users } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-// Define the structure for the API responses
-interface SummaryData {
-  total_inventory_value: number;
-  total_inventory_items: number;
-  low_stock_alerts: number;
-  total_inbound: number;
-  total_outbound: number;
-}
-
-interface TransactionVolume {
-  date: string;
-  inbound: number;
-  outbound: number;
-}
-
 export default function DashboardPage() {
-  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const { data: user, isLoading: isLoadingUser } = useQuery<ApiUser>({
-    queryKey: ['user', 'me'],
-    queryFn: () => fetch('/api/users/me').then((res) => res.json()),
-    enabled: isClient,
-  });
-
-  const { data: summary, isLoading: isLoadingSummary } = useQuery<SummaryData>({
-    queryKey: ['dashboardSummary'],
-    queryFn: () => fetch('/api/dashboard/summary').then((res) => res.json()),
-    enabled: isClient,
-  });
-
-  const { data: activity, isLoading: isLoadingActivity } = useQuery<ActivityLog[]>({
-    queryKey: ['dashboardActivity'],
-    queryFn: () => fetch('/api/dashboard/activity').then((res) => res.json()),
-    enabled: isClient,
-  });
-
-  const { data: transactionVolume, isLoading: isLoadingTransactionVolume } = useQuery<TransactionVolume[]>({
-    queryKey: ['dashboardTransactionVolume'],
-    queryFn: () => fetch('/api/dashboard/transaction-volume').then((res) => res.json()),
-    enabled: isClient,
-  });
-
-  const handleLogout = useMutation({
-    mutationFn: () => fetch('/api/auth/logout', { method: 'POST' }),
-    onSuccess: () => {
-      router.push('/login');
-    },
-  });
-
-  const getUserDisplayName = () => {
-    if (!user) return 'Guest';
-    return user.first_name || user.username;
-  };
+  const { data: summary, isLoading: isLoadingSummary } = useDashboardSummary();
+  const { data: activity, isLoading: isLoadingActivity } = useDashboardActivity();
+  const { data: transactionVolume, isLoading: isLoadingTransactionVolume } = useDashboardTransactionVolume();
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <>
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">
-            {isLoadingUser ? <Skeleton className="h-8 w-48" /> : `Welcome, ${getUserDisplayName()}!`}
-          </h2>
-          <div className="flex items-center space-x-2">
-            <Button onClick={() => handleLogout.mutate()}>Logout</Button>
-          </div>
-        </div>
         <Tabs
-          defaultValue="overview"
+          value={activeTab}
+          onValueChange={setActiveTab}
           className="space-y-4"
         >
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger
-              value="analytics"
-              disabled
+          <div className="hidden md:block">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger
+                value="analytics"
+                disabled
+              >
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger
+                value="reports"
+                disabled
+              >
+                Reports
+              </TabsTrigger>
+              <TabsTrigger
+                value="notifications"
+                disabled
+              >
+                Notifications
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <div className="block md:hidden">
+            <Select
+              value={activeTab}
+              onValueChange={setActiveTab}
             >
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger
-              value="reports"
-              disabled
-            >
-              Reports
-            </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              disabled
-            >
-              Notifications
-            </TabsTrigger>
-          </TabsList>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a tab" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="overview">Overview</SelectItem>
+                <SelectItem
+                  value="analytics"
+                  disabled
+                >
+                  Analytics
+                </SelectItem>
+                <SelectItem
+                  value="reports"
+                  disabled
+                >
+                  Reports
+                </SelectItem>
+                <SelectItem
+                  value="notifications"
+                  disabled
+                >
+                  Notifications
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <TabsContent
             value="overview"
             className="space-y-4"
@@ -119,8 +97,11 @@ export default function DashboardPage() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
+                  <div className="text-2xl font-bold">
+                    RM{isLoadingSummary || !summary ? '...' : summary.total_inventory_value}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Value: ${isLoadingSummary || !summary ? '...' : summary.total_inventory_items}
+                    {isLoadingSummary || !summary ? '...' : summary.total_inventory_items} total items
                   </p>
                 </CardContent>
               </Card>
@@ -166,7 +147,7 @@ export default function DashboardPage() {
                 <CardHeader>
                   <CardTitle>Transaction Volume</CardTitle>
                 </CardHeader>
-                <CardContent className="pl-2">
+                <CardContent>
                   {isClient && !isLoadingTransactionVolume && transactionVolume && (
                     <Overview data={transactionVolume} />
                   )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { ApiUser, ActivityLog } from '@/lib/types';
+import { ActivityLog, ApiUser } from '@/lib/types';
 
 interface RecentSalesProps {
   data: ActivityLog[];
@@ -20,8 +20,11 @@ export function RecentSales({ data }: RecentSalesProps) {
   return (
     <div className="space-y-8">
       {data.map((activity) => (
-        <div key={activity.id} className="flex items-center">
-          <div className="ml-4 space-y-1">
+        <div
+          key={activity.id}
+          className="flex items-center"
+        >
+          <div className=" space-y-1">
             <p className="text-sm font-medium leading-none">{getActorName(activity.actor)}</p>
             <p className="text-sm text-muted-foreground">{activity.object_repr}</p>
           </div>
