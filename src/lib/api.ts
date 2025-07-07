@@ -14,7 +14,7 @@ export async function fetcher<T>(url: string, options?: RequestInit): Promise<T>
 
   if (!res.ok) {
     let info;
-        try {
+    try {
       info = await res.json();
     } catch {
       info = { message: res.statusText };
@@ -26,5 +26,12 @@ export async function fetcher<T>(url: string, options?: RequestInit): Promise<T>
     );
   }
 
+  // For 204 No Content responses, return an empty object as the response
+  // This handles DELETE operations that don't return any content
+  if (res.status === 204) {
+    return {} as T;
+  }
+
+  // For all other successful responses, parse JSON
   return res.json();
 }

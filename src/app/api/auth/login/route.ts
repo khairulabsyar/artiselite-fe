@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function POST(req: NextRequest) {
@@ -19,10 +18,7 @@ export async function POST(req: NextRequest) {
     const data = await apiRes.json();
 
     if (!apiRes.ok) {
-      return NextResponse.json(
-        { error: data.detail || 'Authentication failed' },
-        { status: apiRes.status }
-      );
+      return NextResponse.json({ error: data.detail || 'Authentication failed' }, { status: apiRes.status });
     }
 
     const { access, refresh } = data;
@@ -47,9 +43,6 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error) {
-    return NextResponse.json(
-      { error: 'An unexpected error occurred' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error }, { status: 500 });
   }
 }

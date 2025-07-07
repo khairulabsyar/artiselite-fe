@@ -1,21 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { LoginCredentials } from '@/lib/types';
 
-async function loginUser(credentials: any) {
+async function loginUser(credentials: LoginCredentials) {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
@@ -50,16 +45,17 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your username below to login to your account
-          </CardDescription>
+          <CardDescription>Enter your username below to login to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="grid gap-4"
+          >
             <div className="grid gap-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -82,11 +78,15 @@ export default function LoginPage() {
               />
             </div>
             {mutation.isError && (
-                <p className="text-sm font-medium text-destructive">
-                    {mutation.error instanceof Error ? mutation.error.message : 'An error occurred'}
-                </p>
+              <p className="text-sm font-medium text-destructive">
+                {mutation.error instanceof Error ? mutation.error.message : 'An error occurred'}
+              </p>
             )}
-            <Button type="submit" className="w-full" disabled={mutation.isPending}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={mutation.isPending}
+            >
               {mutation.isPending ? 'Logging in...' : 'Login'}
             </Button>
           </form>

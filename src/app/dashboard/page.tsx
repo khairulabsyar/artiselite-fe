@@ -1,5 +1,6 @@
 'use client';
 
+import { ProductDataTable } from '@/components/dashboard/inventory/product-data-table';
 import { Overview } from '@/components/dashboard/overview';
 import { RecentSales } from '@/components/dashboard/recent-sales';
 
@@ -35,6 +36,7 @@ export default function DashboardPage() {
           <div className="hidden md:block">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="inventory">Inventory</TabsTrigger>
               <TabsTrigger
                 value="analytics"
                 disabled
@@ -65,6 +67,7 @@ export default function DashboardPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="overview">Overview</SelectItem>
+                <SelectItem value="inventory">Inventory</SelectItem>
                 <SelectItem
                   value="analytics"
                   disabled
@@ -163,6 +166,12 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+          <TabsContent
+            value="inventory"
+            className="space-y-4"
+          >
+            <ProductDataTable />
           </TabsContent>
         </Tabs>
       </div>
